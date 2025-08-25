@@ -1,0 +1,44 @@
+# Core FastAPI dependencies
+fastapi
+uvicorn
+pydantic
+
+# CORS middleware
+python-multipart
+
+# LangChain dependencies
+langchain
+langchain-community
+langchain-core
+langchain-groq
+langchain-huggingface
+langchain-openai
+langchain-pinecone
+langchain-text-splitters
+
+# Vector store and embeddings
+pinecone-client
+sentence-transformers
+
+# Groq API
+groq
+
+# HuggingFace
+transformers
+huggingface-hub
+
+# Environment variables
+python-dotenv
+
+# PDF processing
+pypdf
+
+# Additional utilities
+requests
+numpy
+
+# Testing dependencies
+pytest
+pytest-cov
+pytest-asyncio
+httpx
