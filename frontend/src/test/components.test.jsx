@@ -81,16 +81,23 @@ describe('FileUpload', () => {
   })
 
   it('shows error for non-PDF files', async () => {
-    const user = userEvent.setup()
     const mockSuccess = vi.fn()
     const mockError = vi.fn()
     
     render(<FileUpload onUploadSuccess={mockSuccess} onUploadError={mockError} />)
     
-    const fileInput = document.querySelector('#file-input')
+    const fileInput = screen.getByTestId('file-input') || document.querySelector('#file-input')
     const file = new File(['test'], 'test.txt', { type: 'text/plain' })
     
-    await user.upload(fileInput, file)
+    // Simulate file selection
+    Object.defineProperty(fileInput, 'files', {
+      value: [file],
+      writable: false,
+    })
+    
+    // Trigger the change event
+    const changeEvent = new Event('change', { bubbles: true })
+    fileInput.dispatchEvent(changeEvent)
     
     expect(mockError).toHaveBeenCalledWith('Please upload a PDF file only.')
   })
