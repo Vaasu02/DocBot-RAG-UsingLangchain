@@ -87,10 +87,10 @@ describe('FileUpload', () => {
     
     render(<FileUpload onUploadSuccess={mockSuccess} onUploadError={mockError} />)
     
-    const input = screen.getByRole('button')
+    const fileInput = document.querySelector('#file-input')
     const file = new File(['test'], 'test.txt', { type: 'text/plain' })
     
-    await user.upload(input, file)
+    await user.upload(fileInput, file)
     
     expect(mockError).toHaveBeenCalledWith('Please upload a PDF file only.')
   })
