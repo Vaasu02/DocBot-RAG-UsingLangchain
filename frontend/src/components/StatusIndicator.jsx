@@ -18,7 +18,7 @@ const StatusIndicator = () => {
       try {
         const healthy = await apiService.healthCheck()
         setIsAPIHealthy(healthy)
-      } catch (error) {
+      } catch {
         setIsAPIHealthy(false)
       }
     }
