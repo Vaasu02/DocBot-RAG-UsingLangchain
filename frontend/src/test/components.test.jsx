@@ -86,7 +86,7 @@ describe('FileUpload', () => {
     
     render(<FileUpload onUploadSuccess={mockSuccess} onUploadError={mockError} />)
     
-    const fileInput = screen.getByTestId('file-input') || document.querySelector('#file-input')
+    const fileInput = document.querySelector('#file-input')
     const file = new File(['test'], 'test.txt', { type: 'text/plain' })
     
     // Simulate file selection
