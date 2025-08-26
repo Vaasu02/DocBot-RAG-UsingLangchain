@@ -93,7 +93,7 @@ jobs:
     - name: Run frontend tests
       run: |
         cd frontend
-        npm run test -- --coverage --watchAll=false
+        npm run test -- --coverage --run
     
     - name: Build frontend
       run: |
