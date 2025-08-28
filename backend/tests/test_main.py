@@ -15,26 +15,38 @@ def test_root_endpoint(client):
     assert "message" in response.json()
 
 
-def test_upload_endpoint_without_file(client):
-    """Test upload endpoint without file"""
+def test_upload_endpoint_without_auth(client):
+    """Test upload endpoint without authentication"""
     response = client.post("/api/upload")
-    assert response.status_code == 422  # Validation error
+    assert response.status_code == 401  # Unauthorized
 
 
-def test_indexes_endpoint(client):
-    """Test indexes endpoint"""
+def test_indexes_endpoint_without_auth(client):
+    """Test indexes endpoint without authentication"""
     response = client.get("/api/indexes")
-    assert response.status_code in [200, 500]  # May fail without valid API keys
+    assert response.status_code == 401  # Unauthorized
 
 
-def test_chat_endpoint_without_query(client):
-    """Test chat endpoint without query"""
-    response = client.post("/api/chat", json={})
-    assert response.status_code == 422  # Validation error
-
-
-def test_chat_endpoint_with_query(client):
-    """Test chat endpoint with query (may fail without proper setup)"""
+def test_chat_endpoint_without_auth(client):
+    """Test chat endpoint without authentication"""
     response = client.post("/api/chat", json={"query": "test question"})
-    # May return 500 if API keys not configured, which is expected in CI
-    assert response.status_code in [200, 500]
+    assert response.status_code == 401  # Unauthorized
+
+
+def test_auth_signup_endpoint(client):
+    """Test user signup endpoint"""
+    user_data = {
+        "username": "testuser",
+        "email": "test@example.com",
+        "password": "testpassword123",
+    }
+    response = client.post("/api/auth/signup", json=user_data)
+    # May succeed or fail depending on if user exists, both are acceptable in tests
+    assert response.status_code in [200, 400]
+
+
+def test_auth_login_endpoint_invalid(client):
+    """Test login with invalid credentials"""
+    login_data = {"email": "nonexistent@example.com", "password": "wrongpassword"}
+    response = client.post("/api/auth/login", json=login_data)
+    assert response.status_code == 401  # Unauthorized
