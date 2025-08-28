@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 # Database configuration
-DATABASE_URL = "postgresql://ragbot_03n7_user:dh82CkKP199V9F5V7YGG0gpEQyairqqE@dpg-d2mufsadbo4c73f8m5dg-a.oregon-postgres.render.com/ragbot_03n7"
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 # Create SQLAlchemy engine
 engine = create_engine(DATABASE_URL)
@@ -14,6 +14,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create Base class
 Base = declarative_base()
+
 
 # Dependency to get DB session
 def get_db():
