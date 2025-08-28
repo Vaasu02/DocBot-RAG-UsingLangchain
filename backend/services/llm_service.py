@@ -13,7 +13,7 @@ class LLMService:
     def __init__(self):
         self.custom_prompt_template = """
         Use the pieces of information provided in the context to answer user's question.
-        If you dont know the answer, just say that you dont know, dont try to make up an answer. 
+        If you dont know the answer, just say that you dont know, dont try to make up an answer.
         Dont provide anything out of the given context
 
         Context: {context}
@@ -33,7 +33,7 @@ class LLMService:
         """Initialize and return the ChatGroq LLM"""
         try:
             llm = ChatGroq(
-                model_name="meta-llama/llama-4-maverick-17b-128e-instruct",  # free, fast Groq-hosted model
+                model_name="meta-llama/llama-4-maverick-17b-128e-instruct",
                 temperature=0.0,
                 groq_api_key=os.environ["GROQ_API_KEY"],
             )

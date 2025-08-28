@@ -19,7 +19,8 @@ def check_env_file():
         with open(env_file, "w") as f:
             f.write(template_file.read_text())
         print(
-            f"📝 Created {env_file}. Please fill in your API keys before running the server."
+            f"📝 Created {env_file}. "
+            "Please fill in your API keys before running the server."
         )
         return False
 
@@ -36,8 +37,8 @@ def check_env_file():
 def check_dependencies():
     """Check if required packages are installed"""
     try:
-        import fastapi
-        import uvicorn
+        import fastapi  # noqa: F401
+        import uvicorn  # noqa: F401
 
         print("✅ Dependencies are installed")
         return True

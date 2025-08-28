@@ -1,6 +1,6 @@
 import os
 import tempfile
-from pathlib import Path
+
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -36,7 +36,7 @@ class DocumentProcessor:
                 print(f"Creating new index: {index_name}")
                 pc.create_index(
                     name=index_name,
-                    dimension=384,  # dimension for sentence-transformers/all-MiniLM-L6-v2
+                    dimension=384,  # dimension for all-MiniLM-L6-v2
                     metric="cosine",
                     spec=ServerlessSpec(cloud="aws", region="us-east-1"),
                 )
@@ -102,7 +102,7 @@ class DocumentProcessor:
 
                 # Add documents to vector store
                 embedding_model = self._get_embedding_model()
-                vectorstore = PineconeVectorStore.from_documents(
+                PineconeVectorStore.from_documents(
                     documents=text_chunks,
                     index_name=index_name,
                     embedding=embedding_model,
