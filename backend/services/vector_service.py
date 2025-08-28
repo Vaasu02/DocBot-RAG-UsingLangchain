@@ -1,4 +1,3 @@
-
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from functools import lru_cache

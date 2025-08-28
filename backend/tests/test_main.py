@@ -1,6 +1,3 @@
-
-
-
 def test_health_check(client):
     """Test the health check endpoint"""
     response = client.get("/api/health")
