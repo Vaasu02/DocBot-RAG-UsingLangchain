@@ -13,11 +13,17 @@ const StatusIndicator = () => {
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
 
-    // Check API health periodically
+    // Check API health periodically (only when authenticated)
     const checkAPIHealth = async () => {
       try {
-        const healthy = await apiService.healthCheck()
-        setIsAPIHealthy(healthy)
+        // Only check if user is authenticated
+        const token = localStorage.getItem('authToken')
+        if (token) {
+          const healthy = await apiService.healthCheck()
+          setIsAPIHealthy(healthy)
+        } else {
+          setIsAPIHealthy(false)
+        }
       } catch {
         setIsAPIHealthy(false)
       }

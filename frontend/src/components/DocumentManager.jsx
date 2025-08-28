@@ -12,7 +12,18 @@ const DocumentManager = ({ onIndexSwitch, currentIndex }) => {
   const fetchIndexes = async () => {
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${API_BASE_URL}/api/indexes`)
+      
+      // Get auth token
+      const token = localStorage.getItem('authToken')
+      if (!token) {
+        throw new Error('Authentication required')
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/indexes`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       const data = await response.json()
       
       if (data.success) {
@@ -31,10 +42,18 @@ const DocumentManager = ({ onIndexSwitch, currentIndex }) => {
     setSwitching(true)
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      
+      // Get auth token
+      const token = localStorage.getItem('authToken')
+      if (!token) {
+        throw new Error('Authentication required')
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/switch-index`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           index_name: indexName,

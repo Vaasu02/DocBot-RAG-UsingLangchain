@@ -1,20 +1,32 @@
 import os
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from datetime import timedelta
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 import uvicorn
+from sqlalchemy.orm import Session
 
 from services.vector_service import VectorStoreService
 from services.llm_service import LLMService
 from services.document_processor import DocumentProcessor
+from services.auth_service import AuthService, ACCESS_TOKEN_EXPIRE_MINUTES
+from database import get_db, engine, Base
+from models import User
 
 # Load environment variables
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
-app = FastAPI(title="LangChain Integration API", version="1.0.0")
+app = FastAPI(title="DocBot AI API", version="1.0.0")
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
+
+# Security
+security = HTTPBearer()
 
 # CORS middleware for React frontend
 app.add_middleware(
@@ -60,21 +72,124 @@ class IndexListResponse(BaseModel):
 class SwitchIndexRequest(BaseModel):
     index_name: str
 
+# Authentication models
+class UserSignup(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    is_active: bool
+
 
 # Initialize services
 vector_service = VectorStoreService()
 llm_service = LLMService()
 document_processor = DocumentProcessor()
 
+# Authentication dependency
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
+) -> User:
+    """Get current authenticated user"""
+    token = credentials.credentials
+    username = AuthService.verify_token(token)
+    if username is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user = AuthService.get_user_by_username(db, username)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
 
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "message": "LangChain Integration API is running"}
+    return {"status": "healthy", "message": "DocBot AI API is running"}
+
+# Authentication endpoints
+@app.post("/api/auth/signup", response_model=UserResponse)
+def signup(user_data: UserSignup, db: Session = Depends(get_db)):
+    """User registration"""
+    # Check if user already exists
+    if AuthService.get_user_by_email(db, user_data.email):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
+    
+    if AuthService.get_user_by_username(db, user_data.username):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already taken"
+        )
+    
+    # Create new user
+    user = AuthService.create_user(
+        db=db,
+        username=user_data.username,
+        email=user_data.email,
+        password=user_data.password
+    )
+    
+    return UserResponse(
+        id=user.id,
+        username=user.username,
+        email=user.email,
+        is_active=user.is_active
+    )
+
+@app.post("/api/auth/login", response_model=Token)
+def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
+    """User login"""
+    user = AuthService.authenticate_user(db, user_credentials.email, user_credentials.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = AuthService.create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.get("/api/auth/me", response_model=UserResponse)
+def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get current user information"""
+    return UserResponse(
+        id=current_user.id,
+        username=current_user.username,
+        email=current_user.email,
+        is_active=current_user.is_active
+    )
 
 
 @app.post("/api/chat", response_model=ChatResponse)
-def chat(request: ChatRequest):
+def chat(request: ChatRequest, current_user: User = Depends(get_current_user)):
     """
     Chat endpoint that processes user queries using the vector store and LLM
     Replicates the functionality from connect_memory_with_llm.py
@@ -111,7 +226,7 @@ def chat(request: ChatRequest):
 
 
 @app.post("/api/upload", response_model=UploadResponse)
-def upload_document(file: UploadFile = File(...)):
+def upload_document(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
     """
     Upload and process a PDF document
     """
@@ -150,7 +265,7 @@ def upload_document(file: UploadFile = File(...)):
 
 
 @app.get("/api/indexes", response_model=IndexListResponse)
-def get_indexes():
+def get_indexes(current_user: User = Depends(get_current_user)):
     """
     Get list of available document indexes
     """
@@ -165,7 +280,7 @@ def get_indexes():
 
 
 @app.post("/api/switch-index")
-def switch_index(request: SwitchIndexRequest):
+def switch_index(request: SwitchIndexRequest, current_user: User = Depends(get_current_user)):
     """
     Switch to a different document index for chat
     """

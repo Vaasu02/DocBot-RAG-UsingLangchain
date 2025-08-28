@@ -1,11 +1,17 @@
 // API service for communicating with the backend
 // This will be used to replace the simulation functions in App.jsx
 
+import authService from './authService'
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 class APIService {
   constructor() {
     this.baseURL = API_BASE_URL
+  }
+
+  getAuthHeaders() {
+    return authService.getAuthHeaders()
   }
 
   async sendMessage(message) {
@@ -14,6 +20,7 @@ class APIService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...this.getAuthHeaders(),
         },
         body: JSON.stringify({
           query: message,
