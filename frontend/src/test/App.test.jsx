@@ -8,23 +8,33 @@ describe('App', () => {
     expect(screen.getByText('DocBot AI')).toBeInTheDocument()
   })
 
-  it('renders the initial welcome message', () => {
+  it('renders the login welcome message', () => {
     render(<App />)
-    expect(screen.getByText(/Hello! I'm your AI assistant/)).toBeInTheDocument()
+    expect(screen.getByText('Welcome Back')).toBeInTheDocument()
   })
 
-  it('renders the upload PDF button', () => {
+  it('renders the login form description', () => {
     render(<App />)
-    expect(screen.getByText('📄 Upload PDF')).toBeInTheDocument()
+    expect(screen.getByText('Sign in to your DocBot AI account')).toBeInTheDocument()
   })
 
-  it('renders the clear chat button', () => {
+  it('renders the email input field', () => {
     render(<App />)
-    expect(screen.getByText('🗑️ Clear Chat')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Enter your email')).toBeInTheDocument()
   })
 
-  it('renders the chat input', () => {
+  it('renders the password input field', () => {
     render(<App />)
-    expect(screen.getByPlaceholderText(/Ask a question about your documents/)).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Enter your password')).toBeInTheDocument()
+  })
+
+  it('renders the sign in button', () => {
+    render(<App />)
+    expect(screen.getByText('🔐 Sign In')).toBeInTheDocument()
+  })
+
+  it('renders the sign up link', () => {
+    render(<App />)
+    expect(screen.getByText('Sign up')).toBeInTheDocument()
   })
 })
