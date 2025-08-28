@@ -15,19 +15,19 @@ def test_root_endpoint(client):
 def test_upload_endpoint_without_auth(client):
     """Test upload endpoint without authentication"""
     response = client.post("/api/upload")
-    assert response.status_code == 401  # Unauthorized
+    assert response.status_code == 403  # Forbidden (no auth header)
 
 
 def test_indexes_endpoint_without_auth(client):
     """Test indexes endpoint without authentication"""
     response = client.get("/api/indexes")
-    assert response.status_code == 401  # Unauthorized
+    assert response.status_code == 403  # Forbidden (no auth header)
 
 
 def test_chat_endpoint_without_auth(client):
     """Test chat endpoint without authentication"""
     response = client.post("/api/chat", json={"query": "test question"})
-    assert response.status_code == 401  # Unauthorized
+    assert response.status_code == 403  # Forbidden (no auth header)
 
 
 def test_auth_signup_endpoint(client):
