@@ -233,7 +233,7 @@ npm test
 
 ## 🚀 Production Deployment
 
-### Using Docker Compose (Recommended)
+### Using Docker Compose 
 
 1. **Set up production environment variables**
 2. **Build and deploy**
@@ -273,10 +273,6 @@ npm test
 4. Add tests for new functionality
 5. Submit a pull request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 🆘 Troubleshooting
 
 ### Common Issues
@@ -302,17 +298,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Check the API documentation at `/docs`
 - Review the logs in Docker containers
 - Open an issue on GitHub
-
-## 🔮 Future Enhancements
-
-- [ ] Support for more document formats (DOCX, TXT, etc.)
-- [ ] Advanced search filters
-- [ ] Chat history persistence
-- [ ] Multi-language support
-- [ ] Real-time collaboration
-- [ ] Advanced analytics dashboard
-- [ ] Mobile app development
-- [ ] Integration with cloud storage services
 
 ---
 
